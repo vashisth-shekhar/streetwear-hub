@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmation - StreetWear Hub{% endblock %}
+
+{% block content %}
+<h2 style="color: green;">✅ Order Placed Successfully!</h2>
+
+<div style="border: 2px solid green; padding: 20px; border-radius: 8px; background: #f0fff4;">
+    <h3>Order Details</h3>
+    <p><strong>Order ID:</strong> #{{ order.id }}</p>
+    <p><strong>Customer:</strong> {{ order.customer_name }}</p>
+    <p><strong>Email:</strong> {{ order.customer_email }}</p>
+    <p><strong>Phone:</strong> {{ order.customer_phone }}</p>
+    <p><strong>Address:</strong> {{ order.address }}, {{ order.city }} - {{ order.postal_code }}</p>
+    <p><strong>Order Status:</strong> <span style="color: orange;">{{ order.get_status_display }}</span></p>
+    <p><strong>Order Date:</strong> {{ order.created_at|date:"d M Y, H:i" }}</p>
+    <hr>
+    
+    <h4>Items Ordered:</h4>
+    <table style="width: 100%; border-collapse: collapse;">
+        <tr style="background: #f9f9f9;">
+            <th style="padding: 10px; border: 1px solid #ddd;">Product</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Variant</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Price</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Qty</th>
+            <th style="padding: 10px; border: 1px solid #ddd;">Total</th>
+        </tr>
+        {% for item in items %}
+            <tr>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ item.product_name }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ item.variant_text }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">₹{{ item.price }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ item.quantity }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">₹{{ item.price|floatformat:2 }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+    
+    <hr>
+    <h4>Total Amount: ₹{{ order.total_amount|floatformat:2 }}</h4>
+    
+    <p style="color: #666;">A confirmation email will be sent to {{ order.customer_email }}</p>
+</div>
+
+<br>
+<a href="{% url 'product_list' %}">Continue Shopping</a>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - StreetWear Hub{% endblock %}
+
+{% block content %}
+<h2>👤 My Profile</h2>
+
+<div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Member Since:</strong> {{ user.date_joined|date:"d M Y" }}</p>
+    <a href="{% url 'logout_view' %}" class="btn" style="background: #6c757d;">Logout</a>
+</div>
+
+<h3>📦 My Orders</h3>
+
+{% if orders %}
+    <table style="width: 100%; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <th style="padding: 15px; text-align: left;">Order ID</th>
+            <th style="padding: 15px; text-align: left;">Date</th>
+            <th style="padding: 15px; text-align: left;">Total</th>
+            <th style="padding: 15px; text-align: left;">Status</th>
+            <th style="padding: 15px; text-align: left;">Action</th>
+        </tr>
+        {% for order in orders %}
+            <tr>
+                <td style="padding: 15px; border-bottom: 1px solid #eee;">Order #{{ order.id }}</td>
+                <td style="padding: 15px; border-bottom: 1px solid #eee;">{{ order.created_at|date:"d M Y" }}</td>
+                <td style="padding: 15px; border-bottom: 1px solid #eee;">₹{{ order.total_amount }}</td>
+                <td style="padding: 15px; border-bottom: 1px solid #eee;">
+                    {% if order.status == 'pending' %}
+                        <span style="color: #ffc107;">⏳ Pending</span>
+                    {% elif order.status == 'shipped' %}
+                        <span style="color: #17a2b8;">📦 Shipped</span>
+                    {% elif order.status == 'delivered' %}
+                        <span style="color: #28a745;">✅ Delivered</span>
+                    {% else %}
+                        <span style="color: #dc3545;">❌ Cancelled</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 15px; border-bottom: 1px solid #eee;">
+                    <a href="{% url 'order_confirmation' order.id %}">View</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+        No orders yet. <a href="{% url 'product_list' %}">Start shopping!</a>
+    </p>
+{% endif %}
+{% endblock %}

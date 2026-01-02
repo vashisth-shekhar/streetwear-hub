@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - StreetWear Hub{% endblock %}
+
+{% block content %}
+<h2>{{ product.name }}</h2>
+<p>{{ product.description }}</p>
+<p><strong>₹{{ product.price }}</strong></p>
+
+<!-- Average Rating -->
+{% if product.reviews.all %}
+    {% with reviews=product.reviews.all %}
+        {% if reviews.count > 0 %}
+            <p style="font-size: 18px; margin-bottom: 20px;">
+                <strong>⭐ ({{ reviews.count }} reviews)</strong>
+            </p>
+        {% endif %}
+    {% endwith %}
+{% endif %}
+
+<h3>Select Variant:</h3>
+<form method="post">
+    {% csrf_token %}
+    {% for variant in variants %}
+        <div class="variant-box">
+            <label>
+                <input type="radio" name="variant_id" value="{{ variant.id }}" 
+                       {% if forloop.first %}checked{% endif %}>
+                Size: {{ variant.get_size_display }} | Color: {{ variant.get_color_display }} 
+                | Stock: {{ variant.stock }}
+            </label>
+            {% if variant.stock > 0 %}
+                <button type="submit" name="action" value="add_to_cart">Add to Cart</button>
+            {% else %}
+                <span style="color: red;">Out of stock</span>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No variants available.</p>
+    {% endfor %}
+</form>
+
+<a href="{% url 'product_list' %}">← Back to Shop</a>
+
+<hr>
+
+<!-- Reviews Section -->
+<h3>⭐ Customer Reviews</h3>
+
+{% if user.is_authenticated %}
+    <!-- Review Form -->
+    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <h4>Write a Review</h4>
+        <form method="post" action="{% url 'add_review' product.id %}">
+            {% csrf_token %}
+            
+            <label for="rating" style="display: block; margin-bottom: 10px;">Rating:</label>
+            <select id="rating" name="rating" required style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 100%; max-width: 300px;">
+                <option value="">Select a rating...</option>
+                <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                <option value="4">⭐⭐⭐⭐ Very Good</option>
+                <option value="3">⭐⭐⭐ Good</option>
+                <option value="2">⭐⭐ Fair</option>
+                <option value="1">⭐ Poor</option>
+            </select>
+            
+            <label for="comment" style="display: block; margin-top: 15px; margin-bottom: 10px;">Comment:</label>
+            <textarea id="comment" name="comment" placeholder="Share your thoughts..." required style="padding: 10px; border: 1px solid #ddd; border-radius: 5px; width: 100%; min-height: 100px; font-family: Arial;"></textarea>
+            
+            <button type="submit" style="margin-top: 15px; padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">Post Review</button>
+        </form>
+    </div>
+{% else %}
+    <p style="background: #fff3cd; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        📝 <a href="{% url 'login_view' %}">Login</a> to write a review
+    </p>
+{% endif %}
+
+<!-- Display Reviews -->
+{% if product.reviews.all %}
+    <div style="margin-top: 30px;">
+        {% for review in product.reviews.all %}
+            <div style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #667eea; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong>{{ review.user.username }}</strong>
+                    <span style="color: #ffc107; font-size: 16px;">
+                        {% if review.rating == 5 %}⭐⭐⭐⭐⭐
+                        {% elif review.rating == 4 %}⭐⭐⭐⭐
+                        {% elif review.rating == 3 %}⭐⭐⭐
+                        {% elif review.rating == 2 %}⭐⭐
+                        {% elif review.rating == 1 %}⭐
+                        {% endif %}
+                    </span>
+                </div>
+                <p>{{ review.comment }}</p>
+                <small style="color: #999;">{{ review.created_at|date:"d M Y, H:i" }}</small>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p style="background: #f0f0f0; padding: 20px; border-radius: 8px; text-align: center; color: #666;">
+        No reviews yet. Be the first to review! ⭐
+    </p>
+{% endif %}
+
+{% endblock %}

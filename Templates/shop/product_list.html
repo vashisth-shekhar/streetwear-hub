@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Shop - StreetWear Hub{% endblock %}
+
+{% block content %}
+<h2>Our Collections</h2>
+
+<!-- Search & Filter Section -->
+<div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <form method="get" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+        
+        <!-- Search Box -->
+        <div>
+            <label for="search" style="font-weight: 600; display: block; margin-bottom: 8px;">🔍 Search:</label>
+            <input type="text" id="search" name="search" placeholder="Search products..." value="{{ search_query }}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+        
+        <!-- Category Filter -->
+        <div>
+            <label for="category" style="font-weight: 600; display: block; margin-bottom: 8px;">📂 Category:</label>
+            <select id="category" name="category" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+                        {{ cat.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <!-- Min Price -->
+        <div>
+            <label for="min_price" style="font-weight: 600; display: block; margin-bottom: 8px;">💰 Min Price:</label>
+            <input type="number" id="min_price" name="min_price" placeholder="Min..." value="{{ min_price }}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+        
+        <!-- Max Price -->
+        <div>
+            <label for="max_price" style="font-weight: 600; display: block; margin-bottom: 8px;">💰 Max Price:</label>
+            <input type="number" id="max_price" name="max_price" placeholder="Max..." value="{{ max_price }}" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+        </div>
+        
+        <!-- Search Button -->
+        <div style="display: flex; align-items: flex-end;">
+            <button type="submit" style="width: 100%; padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 5px; font-weight: 600; cursor: pointer;">Search</button>
+        </div>
+    </form>
+    
+    <!-- Clear Filters -->
+    {% if search_query or selected_category or min_price or max_price %}
+        <p style="margin-top: 15px;">
+            <a href="{% url 'product_list' %}" style="color: #667eea; text-decoration: underline;">Clear all filters</a>
+        </p>
+    {% endif %}
+</div>
+
+<!-- Results Count -->
+<p style="margin-bottom: 20px; color: #666;">
+    <strong>{{ products.count }}</strong> product{{ products.count|pluralize }} found
+</p>
+
+<!-- Products Grid -->
+<div class="product-grid">
+    {% for product in products %}
+        <div class="product-card">
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <div class="price">₹{{ product.price }}</div>
+            <a href="{% url 'product_detail' product.id %}" class="btn" style="width: 100%; text-align: center;">
+                View Details
+            </a>
+        </div>
+    {% empty %}
+        <div class="empty-message" style="grid-column: 1 / -1;">
+            <p>❌ No products found. Try adjusting your filters.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
